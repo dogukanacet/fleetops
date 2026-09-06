@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getLocale } from "next-intl/server";
 import { Providers } from "@/app/providers";
-import { SessionRefresher } from "@/app/api/components/SessionRefresher";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -9,13 +9,14 @@ export const metadata: Metadata = {
   description: "Multi-tenant filo ve sevkiyat yönetim platformu",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <Providers>
           {children}
-          <SessionRefresher />
           <Toaster />
         </Providers>
       </body>

@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { logoutAction } from "@/app//(dashboard)/logout/actions";
+import { logoutAction } from "@/app/[locale]/(dashboard)/logout/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export async function Topbar() {
