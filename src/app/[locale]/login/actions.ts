@@ -7,9 +7,11 @@ import { AuthError } from "next-auth";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { getRefreshTokenExpiryMs, setRefreshCookie } from "@/lib/refresh-cookie";
+import { getTranslations } from "next-intl/server";
 
 export async function loginAction(formData: FormData) {
   const locale = await getLocale();
+  const t = await getTranslations("Errors");
 
   try {
     const email = formData.get("email") as string;
@@ -33,7 +35,7 @@ export async function loginAction(formData: FormData) {
     await setRefreshCookie(refreshToken, expiresIn);
   } catch (error) {
     if (error instanceof AuthError) {
-      throw new Error("Invalid email or password");
+      throw new Error(t("invalidCredentials"));
     }
 
     throw error;

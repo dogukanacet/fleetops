@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 
 const vehicleSchema = z.object({
   depotId: z.string().min(1, "Depot ID is required"),
@@ -18,9 +19,10 @@ export const createVehicle = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const depotId = data.get("depotId") as string;
@@ -42,7 +44,7 @@ export const createVehicle = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const depot = await prisma.depot.findFirst({
@@ -50,7 +52,7 @@ export const createVehicle = async (
   });
 
   if (!depot) {
-    return { error: "Depot not found or does not belong to the user's tenant", success: false };
+    return { error: t("depotNotFound"), success: false };
   }
 
   await prisma.vehicle.create({
@@ -73,9 +75,10 @@ export const updateVehicle = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const depotId = data.get("depotId") as string;
@@ -97,7 +100,7 @@ export const updateVehicle = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const depot = await prisma.depot.findFirst({
@@ -105,7 +108,7 @@ export const updateVehicle = async (
   });
 
   if (!depot) {
-    return { error: "Depot not found or does not belong to the user's tenant", success: false };
+    return { error: t("depotNotFound"), success: false };
   }
   await prisma.vehicle.update({
     where: { id: vehicleId },
@@ -127,9 +130,10 @@ export const deleteVehicle = async (
   vehicleId: string,
   prevState: { error: string | null; success: boolean },
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   try {
@@ -138,12 +142,12 @@ export const deleteVehicle = async (
     });
 
     if (result.count === 0) {
-      return { error: "Araç bulunamadı", success: false };
+      return { error: t("vehicleNotFound"), success: false };
     }
   } catch (err) {
     if (err instanceof Error && err.message.includes("foreign key constraint")) {
       return {
-        error: "Bu araç geçmiş veya aktif sevkiyatlarla ilişkili olduğu için silinemez.",
+        error: t("vehicleRelation"),
         success: false,
       };
     }

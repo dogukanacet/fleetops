@@ -6,6 +6,7 @@ import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { DispatchStatus } from "@prisma/client";
+import { getTranslations } from "next-intl/server";
 
 const dispatchCreateSchema = z.object({
   routeId: z.string().min(1, "Route ID is required"),
@@ -24,10 +25,11 @@ export const createDispatch = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   const tenantId = session?.user?.tenantId;
   if (!session || !tenantId) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const routeId = data.get("routeId") as string;
@@ -38,7 +40,7 @@ export const createDispatch = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const [vehicle, driver, route] = await Promise.all([
@@ -55,7 +57,7 @@ export const createDispatch = async (
 
   if (!vehicle || !driver || !route) {
     return {
-      error: "Araç, sürücü veya rota bulunamadı ya da bu firmaya ait değil",
+      error: t("resourceNotFound"),
       success: false,
     };
   }
@@ -78,10 +80,11 @@ export const updateDispatch = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   const tenantId = session?.user?.tenantId;
   if (!session || !tenantId) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const routeId = data.get("routeId") as string;
@@ -98,7 +101,7 @@ export const updateDispatch = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const [vehicle, driver, route] = await Promise.all([
@@ -115,7 +118,7 @@ export const updateDispatch = async (
 
   if (!vehicle || !driver || !route) {
     return {
-      error: "Araç, sürücü veya rota bulunamadı ya da bu firmaya ait değil",
+      error: t("resourceNotFound"),
       success: false,
     };
   }
@@ -131,7 +134,7 @@ export const updateDispatch = async (
   });
 
   if (result.count === 0) {
-    return { error: "Sevkiyat bulunamadı", success: false };
+    return { error: t("dispatchNotFound"), success: false };
   }
 
   const locale = await getLocale();
@@ -144,10 +147,11 @@ export const deleteDispatch = async (
   dispatchId: string,
   prevState: { error: string | null; success: boolean },
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   const tenantId = session?.user?.tenantId;
   if (!session || !tenantId) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const result = await prisma.dispatch.deleteMany({
@@ -155,7 +159,7 @@ export const deleteDispatch = async (
   });
 
   if (result.count === 0) {
-    return { error: "Sevkiyat bulunamadı", success: false };
+    return { error: t("dispatchNotFound"), success: false };
   }
 
   const locale = await getLocale();

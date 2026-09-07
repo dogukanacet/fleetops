@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 
 const driverSchema = z.object({
   depotId: z.string().min(1, "Depot ID is required"),
@@ -16,9 +17,10 @@ export const createDriver = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const depotId = data.get("depotId") as string;
@@ -30,7 +32,7 @@ export const createDriver = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const depot = await prisma.depot.findFirst({
@@ -38,7 +40,7 @@ export const createDriver = async (
   });
 
   if (!depot) {
-    return { error: "Depot not found or does not belong to the user's tenant", success: false };
+    return { error: t("depotNotFound"), success: false };
   }
 
   await prisma.driver.create({
@@ -60,9 +62,10 @@ export const updateDriver = async (
   prevState: { error: string | null; success: boolean },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   const depotId = data.get("depotId") as string;
@@ -74,7 +77,7 @@ export const updateDriver = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}`, success: false };
+    return { error: t("validationFailed", { message: errorMessages }), success: false };
   }
 
   const depot = await prisma.depot.findFirst({
@@ -82,7 +85,7 @@ export const updateDriver = async (
   });
 
   if (!depot) {
-    return { error: "Depot not found or does not belong to the user's tenant", success: false };
+    return { error: t("depotNotFound"), success: false };
   }
 
   await prisma.driver.update({
@@ -104,9 +107,10 @@ export const deleteDriver = async (
   driverId: string,
   prevState: { error: string | null; success: boolean },
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated", success: false };
+    return { error: t("unauthenticated"), success: false };
   }
 
   try {
@@ -115,12 +119,12 @@ export const deleteDriver = async (
     });
 
     if (result.count === 0) {
-      return { error: "Sürücü bulunamadı", success: false };
+      return { error: t("driverNotFound"), success: false };
     }
   } catch (err) {
     if (err instanceof Error && err.message.includes("foreign key constraint")) {
       return {
-        error: "Bu sürücü geçmiş veya aktif sevkiyatlarla ilişkili olduğu için silinemez.",
+        error: t("driverRelation"),
         success: false,
       };
     }

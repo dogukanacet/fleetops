@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 
 const stopSchema = z.object({
   routeId: z.string().min(1, "routeId ID is required"),
@@ -18,9 +19,10 @@ export const addStop = async (
   prevState: { error: string | null },
   data: FormData,
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated" };
+    return { error: t("unauthenticated") };
   }
 
   const label = data.get("label") as string;
@@ -30,7 +32,7 @@ export const addStop = async (
 
   if (!validationResult.success) {
     const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
-    return { error: `Validation failed: ${errorMessages}` };
+    return { error: t("validationFailed", { message: errorMessages }) };
   }
 
   const stopCount = await prisma.routeStop.count({ where: { routeId } });
@@ -55,9 +57,10 @@ export const deleteStop = async (
   routeId: string,
   prevState: { error: string | null },
 ) => {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session) {
-    return { error: "User is not authenticated" };
+    return { error: t("unauthenticated") };
   }
 
   await prisma.routeStop.deleteMany({

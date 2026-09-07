@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 const registerSchema = z.object({
   email: z.string().min(3, "email is required"),
@@ -14,6 +15,7 @@ const registerSchema = z.object({
 
 export async function registerAction(formData: FormData) {
   const locale = await getLocale();
+  const t = await getTranslations("Errors");
 
   const companyName = formData.get("companyName") as string;
   const email = formData.get("email") as string;
@@ -22,7 +24,7 @@ export async function registerAction(formData: FormData) {
   const validationResult = registerSchema.safeParse({ email, password, companyName });
 
   if (!validationResult.success) {
-    throw new Error("Geçersiz form verileri");
+    throw new Error(t("invalidForm"));
   }
 
   const validData = validationResult.data;
@@ -32,7 +34,7 @@ export async function registerAction(formData: FormData) {
   });
 
   if (isEmailExist) {
-    throw new Error("Bu e-posta adresi zaten kullanımda");
+    throw new Error(t("emailInUse"));
   }
 
   const passwordHash = await bcrypt.hash(validData.password, 10);

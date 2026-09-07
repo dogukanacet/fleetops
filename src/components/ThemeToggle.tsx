@@ -4,9 +4,11 @@ import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslations } from "next-intl";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations("Common");
 
   const tooltipRenderContent = (
     <Button
@@ -24,7 +26,7 @@ export function ThemeToggle() {
       <TooltipProvider>
         <TooltipTrigger render={tooltipRenderContent} />
         <TooltipContent>
-          <p>{theme === "dark" ? "Light Mode" : "Dark Mode"}</p>
+          <p>{theme === "dark" ? t("lightMode") : t("darkMode")}</p>
         </TooltipContent>
       </TooltipProvider>
     </Tooltip>

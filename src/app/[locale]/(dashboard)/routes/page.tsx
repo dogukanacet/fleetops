@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { AddRouteDialog } from "@/app/[locale]/(dashboard)/routes/AddRouteDialog";
 import RouteRow from "@/app/[locale]/(dashboard)/routes/RouteRow";
+import { getTranslations } from "next-intl/server";
 
 const RoutesPage = async () => {
   const session = await auth();
@@ -18,13 +19,15 @@ const RoutesPage = async () => {
 
   const depotList = await prisma.depot.findMany({ where: { tenantId } });
   const routeList = await prisma.route.findMany({ where: { depot: { tenantId } } });
+  const t = await getTranslations("Routes");
+  const common = await getTranslations("Common");
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={typography.pageTitle}>Rotalar</h1>
-          <p className={typography.secondary}>Depo rotalarını yönet.</p>
+          <h1 className={typography.pageTitle}>{t("title")}</h1>
+          <p className={typography.secondary}>{t("subtitle")}</p>
         </div>
         <AddRouteDialog depotList={depotList} />
       </div>
@@ -32,17 +35,17 @@ const RoutesPage = async () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Rota Adı</TableHead>
-            <TableHead>Depo</TableHead>
-            <TableHead>Oluşturulma Tarihi</TableHead>
-            <TableHead className="text-right">İşlemler</TableHead>
+            <TableHead>{t("name")}</TableHead>
+            <TableHead>{t("depot")}</TableHead>
+            <TableHead>{t("createdAt")}</TableHead>
+            <TableHead className="text-right">{common("actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {routeList.length === 0 ? (
             <TableRow>
               <TableCell colSpan={4} className={`text-center py-8 ${typography.secondary}`}>
-                Henüz rota eklenmemiş.
+                {t("empty")}
               </TableCell>
             </TableRow>
           ) : (

@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Trash2, Plus } from "lucide-react";
 import { typography } from "@/lib/constants";
+import { useTranslations } from "next-intl";
 
 export default function RouteExplorer({ stops, routeId }: { stops: RouteStop[]; routeId: string }) {
   const [selectedStopId, setSelectedStopId] = useState<string | null>(null);
+  const t = useTranslations("RouteDetail");
   const [addState, addAction, isAddPending] = useActionState(
     routeStopActions.addStop.bind(null, routeId),
     { error: null },
@@ -26,7 +28,7 @@ export default function RouteExplorer({ stops, routeId }: { stops: RouteStop[]; 
 
       <Card>
         <CardHeader>
-          <CardTitle className={typography.sectionTitle}>Duraklar</CardTitle>
+          <CardTitle className={typography.sectionTitle}>{t("stops")}</CardTitle>
         </CardHeader>
         <CardContent>
           {stops.length ? (
@@ -43,32 +45,32 @@ export default function RouteExplorer({ stops, routeId }: { stops: RouteStop[]; 
               ))}
             </ul>
           ) : (
-            <p className={typography.secondary}>Henüz durak eklenmedi.</p>
+            <p className={typography.secondary}>{t("empty")}</p>
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className={typography.sectionTitle}>Yeni Durak Ekle</CardTitle>
+          <CardTitle className={typography.sectionTitle}>{t("addStop")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={addAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-2">
-              <Label htmlFor="label">Durak Adı</Label>
-              <Input id="label" name="label" placeholder="ör. Merkez Depo" required />
+              <Label htmlFor="label">{t("stopName")}</Label>
+              <Input id="label" name="label" placeholder={t("stopPlaceholder")} required />
             </div>
             <div className="w-full space-y-2 sm:w-32">
-              <Label htmlFor="lat">Lat</Label>
+              <Label htmlFor="lat">{t("lat")}</Label>
               <Input id="lat" name="lat" type="number" step="any" required />
             </div>
             <div className="w-full space-y-2 sm:w-32">
-              <Label htmlFor="lng">Lng</Label>
+              <Label htmlFor="lng">{t("lng")}</Label>
               <Input id="lng" name="lng" type="number" step="any" required />
             </div>
             <Button type="submit" disabled={isAddPending}>
               <Plus className="h-4 w-4" />
-              {isAddPending ? "Ekleniyor..." : "Ekle"}
+              {isAddPending ? t("adding") : t("addStop")}
             </Button>
           </form>
           {addState.error && <p className="mt-2 text-sm text-destructive">{addState.error}</p>}
@@ -91,6 +93,7 @@ function StopRow({
   isSelected: boolean;
   onSelect: () => void;
 }) {
+  const t = useTranslations("RouteDetail");
   const [deleteState, deleteAction, isDeletePending] = useActionState(
     routeStopActions.deleteStop.bind(null, stop.id, routeId),
     { error: null },
@@ -112,7 +115,7 @@ function StopRow({
       </span>
       <form action={deleteAction} onClick={(e) => e.stopPropagation()}>
         <Button variant="ghost" size="icon" type="submit" disabled={isDeletePending}>
-          <Trash2 className="h-4 w-4 text-destructive" />
+          <Trash2 className="h-4 w-4 text-destructive" aria-label={t("deleteStop")} />
         </Button>
       </form>
       {deleteState.error && <p className="text-xs text-destructive">{deleteState.error}</p>}

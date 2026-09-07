@@ -1,13 +1,16 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { typography } from "@/lib/constants";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations("NotFound");
+  const common = await getTranslations("Common");
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
-      <h1 className={typography.pageTitle}>Bulunamadı</h1>
-      <p className={typography.secondary}>Aradığın kayıt mevcut değil ya da erişim yetkin yok.</p>
-      <Button render={<Link href="/" />}>Panele Dön</Button>
+      <h1 className={typography.pageTitle}>{t("title")}</h1>
+      <p className={typography.secondary}>{t("description")}</p>
+      <Button render={<Link href="/" />}>{common("backToDashboard")}</Button>
     </div>
   );
 }

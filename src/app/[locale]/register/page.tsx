@@ -1,10 +1,12 @@
 import { registerAction } from "@/app/[locale]/register/actions";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 
-const RegisterPage = () => {
+const RegisterPage = async () => {
+  const t = await getTranslations("Auth");
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-3xl font-bold">Trekker Register</h1>
+      <h1 className="text-3xl font-bold">{t("registerTitle")}</h1>
       <form
         action={registerAction}
         style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "20px" }}
@@ -12,21 +14,21 @@ const RegisterPage = () => {
         <input
           type="text"
           name="companyName"
-          placeholder="company Name"
+          placeholder={t("companyName")}
           required
           className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
           name="email"
-          placeholder="email"
+          placeholder={t("email")}
           required
           className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder={t("password")}
           required
           className="border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -34,11 +36,11 @@ const RegisterPage = () => {
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Register
+          {t("register")}
         </button>
       </form>
       <Link href="/login" className="text-blue-500 hover:underline mb-4">
-        back to Login
+        {t("backToLogin")}
       </Link>
     </div>
   );

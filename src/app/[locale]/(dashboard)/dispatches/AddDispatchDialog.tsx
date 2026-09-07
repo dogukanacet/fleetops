@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AddDispatchDialog({
   vehicleList,
@@ -33,6 +34,8 @@ export function AddDispatchDialog({
   routeList: Route[];
 }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Dispatches");
+  const common = useTranslations("Common");
   const [actionState, formAction, isPending] = useActionState(dispatchActions.createDispatch, {
     error: null,
     success: false,
@@ -40,7 +43,7 @@ export function AddDispatchDialog({
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Sevkiyat başarıyla eklendi");
+      toast.success(t("added"));
       setOpen(false);
     }
   }, [actionState.success]);
@@ -49,21 +52,23 @@ export function AddDispatchDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>
         <Plus className="h-4 w-4" />
-        Sevkiyat Ekle
+        {t("add")}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Yeni Sevkiyat</DialogTitle>
+          <DialogTitle>{t("new")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="vehicleId">Araç</Label>
+            <Label htmlFor="vehicleId">{t("vehicle")}</Label>
             <Select name="vehicleId" required>
               <SelectTrigger id="vehicleId">
                 <SelectValue>
                   {(value: string | null) => {
                     const vehicle = vehicleList.find((v) => v.id === value);
-                    return vehicle ? `${vehicle.plate} — ${vehicle.model ?? ""}` : "Araç seç";
+                    return vehicle
+                      ? `${vehicle.plate} — ${vehicle.model ?? ""}`
+                      : t("selectVehicle");
                   }}
                 </SelectValue>
               </SelectTrigger>
@@ -77,12 +82,12 @@ export function AddDispatchDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="driverId">Sürücü</Label>
+            <Label htmlFor="driverId">{t("driver")}</Label>
             <Select name="driverId" required>
               <SelectTrigger id="driverId">
                 <SelectValue>
                   {(value: string | null) =>
-                    value ? driverList.find((d) => d.id === value)?.fullName : "Sürücü seç"
+                    value ? driverList.find((d) => d.id === value)?.fullName : t("selectDriver")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -96,12 +101,12 @@ export function AddDispatchDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="routeId">Rota</Label>
+            <Label htmlFor="routeId">{t("route")}</Label>
             <Select name="routeId" required>
               <SelectTrigger id="routeId">
                 <SelectValue>
                   {(value: string | null) =>
-                    value ? routeList.find((r) => r.id === value)?.name : "Rota seç"
+                    value ? routeList.find((r) => r.id === value)?.name : t("selectRoute")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -116,7 +121,7 @@ export function AddDispatchDialog({
           </div>
           {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
           <DialogFooter>
-            <Button type="submit">Ekle</Button>
+            <Button type="submit">{common("add")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

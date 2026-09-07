@@ -22,18 +22,12 @@ import {
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { EditDispatchDialog } from "@/app/[locale]/(dashboard)/dispatches/EditDispatchDialog";
+import { useTranslations } from "next-intl";
 
 type DispatchRow = Dispatch & {
   vehicle?: { plate: string } | null;
   driver?: { fullName: string } | null;
   route?: { name: string } | null;
-};
-
-const statusLabels: Record<Dispatch["status"], string> = {
-  PLANNED: "Planlandı",
-  IN_PROGRESS: "Devam Ediyor",
-  COMPLETED: "Tamamlandı",
-  CANCELLED: "İptal Edildi",
 };
 
 const trekkerGridTheme = themeQuartz.withParams({
@@ -72,6 +66,8 @@ const DispatchGrid = ({
   routeList: Route[];
 }) => {
   const { resolvedTheme } = useTheme();
+  const t = useTranslations("Dispatches");
+  const common = useTranslations("Common");
   const [editingRow, setEditingRow] = useState<DispatchRow | null>(null);
   const [rowToDelete, setRowToDelete] = useState<DispatchRow | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -86,42 +82,51 @@ const DispatchGrid = ({
     setIsDeleting(false);
 
     if (result.success) {
-      toast.success("Sevkiyat silindi");
+      toast.success(t("deleted"));
       setRowToDelete(null);
     }
   };
 
   const columnDefs: ColDef<DispatchRow>[] = [
     {
-      headerName: "Araç",
-      valueGetter: ({ data }) => data?.vehicle?.plate ?? "-",
+      headerName: t("vehicle"),
+      valueGetter: ({ data }) => data?.vehicle?.plate ?? common("notAvailable"),
     },
     {
-      headerName: "Sürücü",
-      valueGetter: ({ data }) => data?.driver?.fullName ?? "-",
+      headerName: t("driver"),
+      valueGetter: ({ data }) => data?.driver?.fullName ?? common("notAvailable"),
     },
     {
-      headerName: "Rota",
-      valueGetter: ({ data }) => data?.route?.name ?? "-",
+      headerName: t("route"),
+      valueGetter: ({ data }) => data?.route?.name ?? common("notAvailable"),
     },
     {
       field: "status",
-      headerName: "Durum",
+      headerName: t("status"),
       cellRenderer: ({ value }: { value: Dispatch["status"] }) => (
         <span
           className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${dispatchStatusColors[value]}`}
         >
-          {statusLabels[value]}
+          {t(
+            value === "PLANNED"
+              ? "planned"
+              : value === "IN_PROGRESS"
+                ? "inProgress"
+                : value === "COMPLETED"
+                  ? "completed"
+                  : "cancelled",
+          )}
         </span>
       ),
     },
     {
       field: "date",
-      headerName: "Tarih",
-      valueFormatter: ({ value }) => (value ? new Date(value).toLocaleDateString("tr-TR") : "-"),
+      headerName: t("date"),
+      valueFormatter: ({ value }) =>
+        value ? new Date(value).toLocaleDateString() : common("notAvailable"),
     },
     {
-      headerName: "İşlemler",
+      headerName: common("actions"),
       width: 110,
       sortable: false,
       filter: false,
@@ -167,19 +172,17 @@ const DispatchGrid = ({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sevkiyatı sil</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bu sevkiyat kaydı kalıcı olarak silinecek. Bu işlem geri alınamaz.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("deleteDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+            <AlertDialogCancel>{common("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive"
             >
-              {isDeleting ? "Siliniyor..." : "Sil"}
+              {isDeleting ? common("deleting") : common("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

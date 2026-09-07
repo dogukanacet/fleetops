@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { typography } from "@/lib/constants";
 import { AddDispatchDialog } from "@/app/[locale]/(dashboard)/dispatches/AddDispatchDialog";
 import { Card, CardContent } from "@/components/ui/card";
+import { getTranslations } from "next-intl/server";
 
 const DispatchesPage = async () => {
   const session = await auth();
@@ -19,13 +20,14 @@ const DispatchesPage = async () => {
       orderBy: { date: "desc" },
     }),
   ]);
+  const t = await getTranslations("Dispatches");
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={typography.pageTitle}>Sevkiyatlar</h1>
-          <p className={typography.secondary}>Araç, sürücü ve rota atamalarını yönet.</p>
+          <h1 className={typography.pageTitle}>{t("title")}</h1>
+          <p className={typography.secondary}>{t("subtitle")}</p>
         </div>
         <AddDispatchDialog
           vehicleList={vehicleList}

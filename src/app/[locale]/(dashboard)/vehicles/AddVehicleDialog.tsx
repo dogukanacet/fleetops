@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AddVehicleDialog({ depotList }: { depotList: Depot[] }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Vehicles");
+  const common = useTranslations("Common");
   const [actionState, formAction, isPending] = useActionState(vehicleActions.createVehicle, {
     error: null,
     success: false,
@@ -33,7 +36,7 @@ export function AddVehicleDialog({ depotList }: { depotList: Depot[] }) {
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Araç başarıyla eklendi");
+      toast.success(t("added"));
       setOpen(false);
     }
   }, [actionState.success]);
@@ -42,36 +45,36 @@ export function AddVehicleDialog({ depotList }: { depotList: Depot[] }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>
         <Plus className="h-4 w-4" />
-        Araç Ekle
+        {t("add")}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Yeni Araç</DialogTitle>
+          <DialogTitle>{t("new")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="plate">Plaka</Label>
+            <Label htmlFor="plate">{t("plate")}</Label>
             <Input id="plate" name="plate" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="model">Model</Label>
+            <Label htmlFor="model">{t("model")}</Label>
             <Input id="model" name="model" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="insuranceUntil">Sigorta Bitiş Tarihi</Label>
+            <Label htmlFor="insuranceUntil">{t("insuranceUntil")}</Label>
             <Input id="insuranceUntil" name="insuranceUntil" type="date" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="inspectionUntil">Muayene Bitiş Tarihi</Label>
+            <Label htmlFor="inspectionUntil">{t("inspectionUntil")}</Label>
             <Input id="inspectionUntil" name="inspectionUntil" type="date" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="depotId">Depo</Label>
+            <Label htmlFor="depotId">{t("depot")}</Label>
             <Select name="depotId" required>
               <SelectTrigger id="depotId">
                 <SelectValue>
                   {(value: string | null) =>
-                    value ? depotList.find((d) => d.id === value)?.name : "Depo seç"
+                    value ? depotList.find((d) => d.id === value)?.name : common("selectDepot")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -86,7 +89,7 @@ export function AddVehicleDialog({ depotList }: { depotList: Depot[] }) {
           </div>
           {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
           <DialogFooter>
-            <Button type="submit">Ekle</Button>
+            <Button type="submit">{common("add")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

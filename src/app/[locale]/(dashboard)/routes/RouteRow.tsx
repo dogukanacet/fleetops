@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import type { Route, Depot } from "@prisma/client";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import * as routeActions from "@/app/[locale]/(dashboard)/routes/actions";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -36,9 +36,12 @@ import {
 } from "@/components/ui/select";
 import { Pencil, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const t = useTranslations("Routes");
+  const common = useTranslations("Common");
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [updateState, updateAction, isUpdatePending] = useActionState(
     routeActions.updateRoute.bind(null, route.id),
@@ -49,7 +52,7 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
 
   useEffect(() => {
     if (updateState.success) {
-      toast.success("Rota başarıyla güncellendi");
+      toast.success(t("updated"));
       setIsEditOpen(false);
     }
   }, [updateState.success]);
@@ -62,18 +65,18 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
     if (result.error) {
       setDeleteError(result.error);
     } else {
-      toast.success("Rota başarıyla silindi");
+      toast.success(t("deleted"));
       setIsDeleteOpen(false);
     }
   };
 
-  const depotName = depotList.find((d) => d.id === route.depotId)?.name ?? "—";
+  const depotName = depotList.find((d) => d.id === route.depotId)?.name ?? common("notAvailable");
 
   return (
     <TableRow>
       <TableCell>{route.name}</TableCell>
       <TableCell>{depotName}</TableCell>
-      <TableCell>{route.createdAt.toLocaleDateString("tr")}</TableCell>
+      <TableCell>{route.createdAt.toLocaleDateString()}</TableCell>
       <TableCell className="text-right space-x-2">
         <Button variant="ghost" size="icon" render={<Link href={`/routes/${route.id}`} />}>
           <Eye className="h-4 w-4" />
@@ -84,15 +87,15 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Rotayı Düzenle</DialogTitle>
+              <DialogTitle>{t("edit")}</DialogTitle>
             </DialogHeader>
             <form action={updateAction} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor={`name-${route.id}`}>Rota Adı</Label>
+                <Label htmlFor={`name-${route.id}`}>{t("name")}</Label>
                 <Input id={`name-${route.id}`} name="name" defaultValue={route.name} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`depotId-${route.id}`}>Depo</Label>
+                <Label htmlFor={`depotId-${route.id}`}>{t("depot")}</Label>
                 <Select name="depotId" defaultValue={route.depotId}>
                   <SelectTrigger id={`depotId-${route.id}`}>
                     <SelectValue>
@@ -111,7 +114,7 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
               {updateState.error && <p className="text-sm text-destructive">{updateState.error}</p>}
               <DialogFooter>
                 <Button type="submit" disabled={isUpdatePending}>
-                  {isUpdatePending ? "Güncelleniyor..." : "Kaydet"}
+                  {isUpdatePending ? common("updating") : common("save")}
                 </Button>
               </DialogFooter>
             </form>
@@ -124,9 +127,9 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Rotayı sil</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {route.name} kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                {t("deleteDescription", { name: route.name })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <form
@@ -136,13 +139,13 @@ const RouteRow = ({ route, depotList }: { route: Route; depotList: Depot[] }) =>
               }}
             >
               <AlertDialogFooter>
-                <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+                <AlertDialogCancel>{common("cancel")}</AlertDialogCancel>
                 <Button
                   type="submit"
                   className="bg-destructive hover:bg-destructive/90"
                   disabled={isDeletePending}
                 >
-                  {isDeletePending ? "Siliniyor..." : "Sil"}
+                  {isDeletePending ? common("deleting") : common("delete")}
                 </Button>
               </AlertDialogFooter>
               {deleteError && <p className="text-sm text-destructive mt-2">{deleteError}</p>}

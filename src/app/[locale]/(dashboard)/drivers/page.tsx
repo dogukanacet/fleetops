@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { AddDriverDialog } from "@/app/[locale]/(dashboard)/drivers/AddDriverDialog";
 import DriverRow from "@/app/[locale]/(dashboard)/drivers/DriverRow";
+import { getTranslations } from "next-intl/server";
 
 const DriversPage = async () => {
   const session = await auth();
@@ -22,29 +23,31 @@ const DriversPage = async () => {
   const driverList = await prisma.driver.findMany({
     where: { depot: { tenantId } },
   });
+  const t = await getTranslations("Drivers");
+  const common = await getTranslations("Common");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-center justify-between">
         <div>
-          <h1 className={typography.pageTitle}>Sürücüler</h1>
-          <p className={typography.secondary}>Filo sürücülerini yönet.</p>
+          <h1 className={typography.pageTitle}>{t("title")}</h1>
+          <p className={typography.secondary}>{t("subtitle")}</p>
         </div>
         <AddDriverDialog depotList={depotList} />
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Ad Soyad</TableHead>
-            <TableHead>Depo</TableHead>
-            <TableHead>Ehliyet Bitiş</TableHead>
-            <TableHead className="text-right">İşlemler</TableHead>
+            <TableHead>{t("name")}</TableHead>
+            <TableHead>{t("depot")}</TableHead>
+            <TableHead>{t("licenseUntil")}</TableHead>
+            <TableHead className="text-right">{common("actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {driverList.length === 0 ? (
             <TableRow>
-              <TableCell>Henüz sürücü eklenmemiş.</TableCell>
+              <TableCell colSpan={4}>{t("empty")}</TableCell>
             </TableRow>
           ) : (
             driverList.map((driver) => (

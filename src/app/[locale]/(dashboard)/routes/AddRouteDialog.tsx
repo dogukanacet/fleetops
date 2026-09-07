@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AddRouteDialog({ depotList }: { depotList: Depot[] }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Routes");
+  const common = useTranslations("Common");
   const [actionState, formAction] = useActionState(routeActions.createRoute, {
     error: null,
     success: false,
@@ -33,7 +36,7 @@ export function AddRouteDialog({ depotList }: { depotList: Depot[] }) {
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Rota başarıyla eklendi");
+      toast.success(t("added"));
       setOpen(false);
     }
   }, [actionState.success]);
@@ -42,24 +45,24 @@ export function AddRouteDialog({ depotList }: { depotList: Depot[] }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>
         <Plus className="h-4 w-4" />
-        Rota Ekle
+        {t("add")}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Yeni Rota</DialogTitle>
+          <DialogTitle>{t("new")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Rota Adı</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input id="name" name="name" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="depotId">Depo</Label>
+            <Label htmlFor="depotId">{t("depot")}</Label>
             <Select name="depotId" required>
               <SelectTrigger id="depotId">
                 <SelectValue>
                   {(value: string | null) =>
-                    value ? depotList.find((d) => d.id === value)?.name : "Depo seç"
+                    value ? depotList.find((d) => d.id === value)?.name : common("selectDepot")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -74,7 +77,7 @@ export function AddRouteDialog({ depotList }: { depotList: Depot[] }) {
           </div>
           {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
           <DialogFooter>
-            <Button type="submit">Ekle</Button>
+            <Button type="submit">{common("add")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

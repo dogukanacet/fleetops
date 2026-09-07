@@ -35,9 +35,12 @@ import {
 } from "@/components/ui/select";
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const t = useTranslations("Drivers");
+  const common = useTranslations("Common");
   const [actionState, formAction, isPending] = useActionState(
     driverActions.updateDriver.bind(null, driver.id),
     { error: null, success: false },
@@ -48,7 +51,7 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Sürücü başarıyla güncellendi");
+      toast.success(t("updated"));
       setIsEditOpen(false);
     }
   }, [actionState.success]);
@@ -62,19 +65,19 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
     if (result.error) {
       setDeleteError(result.error);
     } else {
-      toast.success("Sürücü başarıyla silindi");
+      toast.success(t("deleted"));
       setIsDeleteOpen(false);
     }
   };
 
-  const depotName = depotList.find((d) => d.id === driver.depotId)?.name ?? "—";
+  const depotName = depotList.find((d) => d.id === driver.depotId)?.name ?? common("notAvailable");
 
   return (
     <TableRow>
       <TableCell>{driver.fullName}</TableCell>
       <TableCell>{depotName}</TableCell>
       <TableCell>
-        {driver.licenseUntil ? driver.licenseUntil.toLocaleDateString("tr") : "—"}
+        {driver.licenseUntil ? driver.licenseUntil.toLocaleDateString() : common("notAvailable")}
       </TableCell>
       <TableCell className="text-right space-x-2">
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -83,11 +86,11 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Sürücüyü Düzenle</DialogTitle>
+              <DialogTitle>{t("edit")}</DialogTitle>
             </DialogHeader>
             <form action={formAction} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor={`fullName-${driver.id}`}>Ad Soyad</Label>
+                <Label htmlFor={`fullName-${driver.id}`}>{t("name")}</Label>
                 <Input
                   id={`fullName-${driver.id}`}
                   name="fullName"
@@ -95,7 +98,7 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`licenseUntil-${driver.id}`}>Ehliyet Bitiş Tarihi</Label>
+                <Label htmlFor={`licenseUntil-${driver.id}`}>{t("licenseUntil")}</Label>
                 <Input
                   id={`licenseUntil-${driver.id}`}
                   name="licenseUntil"
@@ -106,7 +109,7 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`depotId-${driver.id}`}>Depo</Label>
+                <Label htmlFor={`depotId-${driver.id}`}>{t("depot")}</Label>
                 <Select name="depotId" defaultValue={driver.depotId}>
                   <SelectTrigger id={`depotId-${driver.id}`}>
                     <SelectValue>
@@ -125,7 +128,7 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
               {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
               <DialogFooter>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Güncelleniyor..." : "Kaydet"}
+                  {isPending ? common("updating") : common("save")}
                 </Button>
               </DialogFooter>
             </form>
@@ -138,9 +141,9 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Sürücüyü sil</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {driver.fullName} kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                {t("deleteDescription", { name: driver.fullName })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <form
@@ -150,13 +153,13 @@ const DriverRow = ({ driver, depotList }: { driver: Driver; depotList: Depot[] }
               }}
             >
               <AlertDialogFooter>
-                <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+                <AlertDialogCancel>{common("cancel")}</AlertDialogCancel>
                 <Button
                   type="submit"
                   className="bg-destructive hover:bg-destructive/90"
                   disabled={isDeletePending}
                 >
-                  {isDeletePending ? "Siliniyor..." : "Sil"}
+                  {isDeletePending ? common("deleting") : common("delete")}
                 </Button>
               </AlertDialogFooter>
               {deleteError && <p className="text-sm text-destructive mt-2">{deleteError}</p>}

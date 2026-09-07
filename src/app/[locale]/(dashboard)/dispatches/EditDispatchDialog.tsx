@@ -20,18 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 type DispatchRow = Dispatch & {
   vehicle?: { plate: string } | null;
   driver?: { fullName: string } | null;
   route?: { name: string } | null;
-};
-
-const statusLabels: Record<DispatchStatus, string> = {
-  PLANNED: "Planlandı",
-  IN_PROGRESS: "Devam Ediyor",
-  COMPLETED: "Tamamlandı",
-  CANCELLED: "İptal Edildi",
 };
 
 export function EditDispatchDialog({
@@ -49,6 +43,14 @@ export function EditDispatchDialog({
   driverList: Driver[];
   routeList: Route[];
 }) {
+  const t = useTranslations("Dispatches");
+  const common = useTranslations("Common");
+  const statusOptions: { value: DispatchStatus; label: string }[] = [
+    { value: "PLANNED", label: t("planned") },
+    { value: "IN_PROGRESS", label: t("inProgress") },
+    { value: "COMPLETED", label: t("completed") },
+    { value: "CANCELLED", label: t("cancelled") },
+  ];
   const [actionState, formAction, isPending] = useActionState(
     dispatchActions.updateDispatch.bind(null, dispatch.id),
     { error: null, success: false },
@@ -56,7 +58,7 @@ export function EditDispatchDialog({
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Sevkiyat güncellendi");
+      toast.success(t("updated"));
       onOpenChange(false);
     }
   }, [actionState.success]);
@@ -65,11 +67,11 @@ export function EditDispatchDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sevkiyatı Düzenle</DialogTitle>
+          <DialogTitle>{t("edit")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="vehicleId">Araç</Label>
+            <Label htmlFor="vehicleId">{t("vehicle")}</Label>
             <Select name="vehicleId" defaultValue={dispatch.vehicleId}>
               <SelectTrigger id="vehicleId">
                 <SelectValue>
@@ -89,7 +91,7 @@ export function EditDispatchDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="driverId">Sürücü</Label>
+            <Label htmlFor="driverId">{t("driver")}</Label>
             <Select name="driverId" defaultValue={dispatch.driverId}>
               <SelectTrigger id="driverId">
                 <SelectValue>
@@ -106,7 +108,7 @@ export function EditDispatchDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="routeId">Rota</Label>
+            <Label htmlFor="routeId">{t("route")}</Label>
             <Select name="routeId" defaultValue={dispatch.routeId}>
               <SelectTrigger id="routeId">
                 <SelectValue>
@@ -123,13 +125,17 @@ export function EditDispatchDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="status">Durum</Label>
+            <Label htmlFor="status">{t("status")}</Label>
             <Select name="status" defaultValue={dispatch.status}>
               <SelectTrigger id="status">
-                <SelectValue>{(value: DispatchStatus) => statusLabels[value]}</SelectValue>
+                <SelectValue>
+                  {(value: DispatchStatus) =>
+                    statusOptions.find((option) => option.value === value)?.label
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(statusLabels).map(([value, label]) => (
+                {statusOptions.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
@@ -140,7 +146,7 @@ export function EditDispatchDialog({
           {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
           <DialogFooter>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Güncelleniyor..." : "Kaydet"}
+              {isPending ? common("updating") : common("save")}
             </Button>
           </DialogFooter>
         </form>

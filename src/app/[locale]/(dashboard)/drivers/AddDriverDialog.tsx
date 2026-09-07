@@ -23,9 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export function AddDriverDialog({ depotList }: { depotList: Depot[] }) {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("Drivers");
+  const common = useTranslations("Common");
   const [actionState, formAction, isPending] = useActionState(driverActions.createDriver, {
     error: null,
     success: false,
@@ -33,7 +36,7 @@ export function AddDriverDialog({ depotList }: { depotList: Depot[] }) {
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Sürücü başarıyla eklendi");
+      toast.success(t("added"));
       setOpen(false);
     }
   }, [actionState.success]);
@@ -42,28 +45,28 @@ export function AddDriverDialog({ depotList }: { depotList: Depot[] }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button />}>
         <Plus className="h-4 w-4" />
-        Sürücü Ekle
+        {t("add")}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Yeni Sürücü</DialogTitle>
+          <DialogTitle>{t("new")}</DialogTitle>
         </DialogHeader>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="fullName">Ad Soyad</Label>
+            <Label htmlFor="fullName">{t("name")}</Label>
             <Input id="fullName" name="fullName" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="licenseUntil">Ehliyet Bitiş Tarihi</Label>
+            <Label htmlFor="licenseUntil">{t("licenseUntil")}</Label>
             <Input id="licenseUntil" name="licenseUntil" type="date" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="depotId">Depo</Label>
+            <Label htmlFor="depotId">{t("depot")}</Label>
             <Select name="depotId" required>
               <SelectTrigger id="depotId">
                 <SelectValue>
                   {(value: string | null) =>
-                    value ? depotList.find((d) => d.id === value)?.name : "Depo seç"
+                    value ? depotList.find((d) => d.id === value)?.name : common("selectDepot")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -78,7 +81,7 @@ export function AddDriverDialog({ depotList }: { depotList: Depot[] }) {
           </div>
           {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
           <DialogFooter>
-            <Button type="submit">Ekle</Button>
+            <Button type="submit">{common("add")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

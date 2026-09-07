@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Truck, Users, Route as RouteIcon, ClipboardList } from "lucide-react";
 import { typography } from "@/lib/constants";
 
 export default async function Home() {
+  const t = await getTranslations("Dashboard");
   const session = await auth();
   const tenantId = session?.user?.tenantId;
 
@@ -26,18 +28,24 @@ export default async function Home() {
   });
 
   const cards = [
-    { label: "Araç", count: vehicleCount, href: "/vehicles", icon: Truck },
-    { label: "Sürücü", count: driverCount, href: "/drivers", icon: Users },
-    { label: "Rota", count: routeCount, href: "/routes", icon: RouteIcon },
-    { label: "Bugünkü Sevkiyat", count: dispatchCount, href: "/dispatches", icon: ClipboardList },
+    { label: t("vehicles"), count: vehicleCount, href: "/vehicles", icon: Truck },
+    { label: t("drivers"), count: driverCount, href: "/drivers", icon: Users },
+    { label: t("routes"), count: routeCount, href: "/routes", icon: RouteIcon },
+    {
+      label: t("todaysDispatches"),
+      count: dispatchCount,
+      href: "/dispatches",
+      icon: ClipboardList,
+    },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className={typography.pageTitle}>Trekker</h1>
-        <p className={typography.secondary}>Filo yönetim paneline hoş geldin.</p>
+        <h1 className={typography.pageTitle}>{t("title")}</h1>
+        <p className={typography.secondary}>{t("subtitle")}</p>
       </div>
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon;

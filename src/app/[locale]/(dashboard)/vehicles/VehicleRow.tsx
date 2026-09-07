@@ -35,9 +35,12 @@ import {
 } from "@/components/ui/select";
 import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot[] }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const t = useTranslations("Vehicles");
+  const common = useTranslations("Common");
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [actionState, formAction, isPending] = useActionState(
     vehicleActions.updateVehicle.bind(null, vehicle.id),
@@ -48,7 +51,7 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
 
   useEffect(() => {
     if (actionState.success) {
-      toast.success("Araç başarıyla güncellendi");
+      toast.success(t("updated"));
       setIsEditOpen(false);
     }
   }, [actionState.success]);
@@ -61,23 +64,27 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
     if (result.error) {
       setDeleteError(result.error);
     } else {
-      toast.success("Araç başarıyla silindi");
+      toast.success(t("deleted"));
       setIsDeleteOpen(false);
     }
   };
 
-  const depotName = depotList.find((d) => d.id === vehicle.depotId)?.name ?? "—";
+  const depotName = depotList.find((d) => d.id === vehicle.depotId)?.name ?? common("notAvailable");
 
   return (
     <TableRow>
       <TableCell>{vehicle.plate}</TableCell>
-      <TableCell>{vehicle.model ?? "—"}</TableCell>
+      <TableCell>{vehicle.model ?? common("notAvailable")}</TableCell>
       <TableCell>{depotName}</TableCell>
       <TableCell>
-        {vehicle.insuranceUntil ? vehicle.insuranceUntil.toLocaleDateString("tr") : "—"}
+        {vehicle.insuranceUntil
+          ? vehicle.insuranceUntil.toLocaleDateString()
+          : common("notAvailable")}
       </TableCell>
       <TableCell>
-        {vehicle.inspectionUntil ? vehicle.inspectionUntil.toLocaleDateString("tr") : "—"}
+        {vehicle.inspectionUntil
+          ? vehicle.inspectionUntil.toLocaleDateString()
+          : common("notAvailable")}
       </TableCell>
       <TableCell className="text-right space-x-2">
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -86,19 +93,19 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Aracı Düzenle</DialogTitle>
+              <DialogTitle>{t("edit")}</DialogTitle>
             </DialogHeader>
             <form action={formAction} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor={`plate-${vehicle.id}`}>Plaka</Label>
+                <Label htmlFor={`plate-${vehicle.id}`}>{t("plate")}</Label>
                 <Input id={`plate-${vehicle.id}`} name="plate" defaultValue={vehicle.plate} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`model-${vehicle.id}`}>Model</Label>
+                <Label htmlFor={`model-${vehicle.id}`}>{t("model")}</Label>
                 <Input id={`model-${vehicle.id}`} name="model" defaultValue={vehicle.model ?? ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`insuranceUntil-${vehicle.id}`}>Sigorta Bitiş Tarihi</Label>
+                <Label htmlFor={`insuranceUntil-${vehicle.id}`}>{t("insuranceUntil")}</Label>
                 <Input
                   id={`insuranceUntil-${vehicle.id}`}
                   name="insuranceUntil"
@@ -109,7 +116,7 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`inspectionUntil-${vehicle.id}`}>Muayene Bitiş Tarihi</Label>
+                <Label htmlFor={`inspectionUntil-${vehicle.id}`}>{t("inspectionUntil")}</Label>
                 <Input
                   id={`inspectionUntil-${vehicle.id}`}
                   name="inspectionUntil"
@@ -122,7 +129,7 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor={`depotId-${vehicle.id}`}>Depo</Label>
+                <Label htmlFor={`depotId-${vehicle.id}`}>{t("depot")}</Label>
                 <Select name="depotId" defaultValue={vehicle.depotId}>
                   <SelectTrigger id={`depotId-${vehicle.id}`}>
                     <SelectValue>
@@ -141,7 +148,7 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
               {actionState.error && <p className="text-sm text-destructive">{actionState.error}</p>}
               <DialogFooter>
                 <Button type="submit" disabled={isPending}>
-                  {isPending ? "Güncelleniyor..." : "Kaydet"}
+                  {isPending ? common("updating") : common("save")}
                 </Button>
               </DialogFooter>
             </form>
@@ -154,9 +161,9 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Aracı sil</AlertDialogTitle>
+              <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
               <AlertDialogDescription>
-                {vehicle.plate} kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                {t("deleteDescription", { plate: vehicle.plate })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <form
@@ -166,13 +173,13 @@ const VehicleRow = ({ vehicle, depotList }: { vehicle: Vehicle; depotList: Depot
               }}
             >
               <AlertDialogFooter>
-                <AlertDialogCancel>Vazgeç</AlertDialogCancel>
+                <AlertDialogCancel>{common("cancel")}</AlertDialogCancel>
                 <Button
                   type="submit"
                   className="bg-destructive hover:bg-destructive/90"
                   disabled={isDeletePending}
                 >
-                  {isDeletePending ? "Siliniyor..." : "Sil"}
+                  {isDeletePending ? common("deleting") : common("delete")}
                 </Button>
               </AlertDialogFooter>
               {deleteError && <p className="text-sm text-destructive mt-2">{deleteError}</p>}
