@@ -13,7 +13,7 @@ const registerSchema = z.object({
   companyName: z.string().min(1, "company name is required"),
 });
 
-export async function registerAction(formData: FormData) {
+export async function registerAction(prevState: { error: string | null }, formData: FormData) {
   const locale = await getLocale();
   const t = await getTranslations("Errors");
 
@@ -24,7 +24,8 @@ export async function registerAction(formData: FormData) {
   const validationResult = registerSchema.safeParse({ email, password, companyName });
 
   if (!validationResult.success) {
-    throw new Error(t("invalidForm"));
+    const errorMessages = validationResult.error.errors.map((err) => err.message).join(", ");
+    return { error: `${t("invalidForm")} ${errorMessages}` };
   }
 
   const validData = validationResult.data;
@@ -34,20 +35,14 @@ export async function registerAction(formData: FormData) {
   });
 
   if (isEmailExist) {
-    throw new Error(t("emailInUse"));
+    return { error: t("emailInUse") };
   }
 
   const passwordHash = await bcrypt.hash(validData.password, 10);
 
   await prisma.$transaction(async (tx) => {
-    const tenant = await tx.tenant.create({
-      data: { name: validData.companyName },
-    });
-
-    await tx.depot.create({
-      data: { name: "Ana Depo", tenantId: tenant.id },
-    });
-
+    const tenant = await tx.tenant.create({ data: { name: validData.companyName } });
+    await tx.depot.create({ data: { name: "Ana Depo", tenantId: tenant.id } });
     await tx.user.create({
       data: {
         email: validData.email,
@@ -59,4 +54,5 @@ export async function registerAction(formData: FormData) {
   });
 
   redirect({ href: "/login", locale });
+  return { error: null };
 }

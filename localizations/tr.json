@@ -118,14 +118,19 @@
     "deleteDescription": "Bu sevkiyat kaydı kalıcı olarak silinecek. Bu işlem geri alınamaz."
   },
   "Auth": {
-    "loginTitle": "Trekker Giriş",
-    "registerTitle": "Trekker Kayıt",
     "email": "E-posta",
     "password": "Şifre",
-    "companyName": "Şirket adı",
     "login": "Giriş yap",
     "register": "Kayıt ol",
-    "backToLogin": "Girişe dön"
+    "backToLogin": "Girişe dön",
+    "loginTitle": "Giriş Yap",
+    "loginSubtitle": "Devam etmek için hesabına giriş yap",
+    "registerTitle": "Hesap Oluştur",
+    "registerSubtitle": "Filonu yönetmeye başla",
+    "companyName": "Firma Adı",
+    "loggingIn": "Giriş yapılıyor...",
+    "registering": "Kayıt oluşturuluyor...",
+    "noAccount": "Hesabın yok mu?"
   },
   "Errors": {
     "validationFailed": "Doğrulama başarısız: {message}",
@@ -144,7 +149,8 @@
     "stopNameRequired": "Durak adı gerekli",
     "latRequired": "Enlem gerekli",
     "lngRequired": "Boylam gerekli",
-    "resourceNotFound": "Aradığın kayıt mevcut değil ya da erişim yetkin yok."
+    "resourceNotFound": "Aradığın kayıt mevcut değil ya da erişim yetkin yok.",
+    "sessionInfoNotFound": "Oturum bilgisi bulunamadı"
   },
   "NotFound": {
     "title": "Bulunamadı",

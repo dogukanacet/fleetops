@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { logoutAction } from "@/app/[locale]/(dashboard)/logout/actions";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { getTranslations } from "next-intl/server";
 
 export async function Topbar() {
