@@ -118,14 +118,19 @@
     "deleteDescription": "This dispatch record will be permanently deleted. This action cannot be undone."
   },
   "Auth": {
-    "loginTitle": "Trekker Login",
-    "registerTitle": "Trekker Register",
+    "loginTitle": "Login",
+    "registerTitle": "Register",
     "email": "Email",
     "password": "Password",
     "companyName": "Company name",
     "login": "Login",
     "register": "Register",
-    "backToLogin": "Back to login"
+    "backToLogin": "Back to login",
+    "loginSubtitle": "Log in to your account to continue",
+    "registerSubtitle": "Start managing your fleet",
+    "loggingIn": "Logging in...",
+    "registering": "Registering...",
+    "noAccount": "Don't have an account?"
   },
   "Errors": {
     "validationFailed": "Validation failed: {message}",
@@ -144,7 +149,8 @@
     "stopNameRequired": "Stop name is required",
     "latRequired": "Latitude is required",
     "lngRequired": "Longitude is required",
-    "resourceNotFound": "The requested record was not found or you do not have access."
+    "resourceNotFound": "The requested record was not found or you do not have access.",
+    "sessionInfoNotFound": "Session information not found"
   },
   "NotFound": {
     "title": "Not found",
